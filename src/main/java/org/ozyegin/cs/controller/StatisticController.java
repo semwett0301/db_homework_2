@@ -23,13 +23,13 @@ public class StatisticController {
   private TransactionHistoryRepository transactionHistoryRepository;
 
   @RequestMapping(value = "/query1", produces = "application/json", method = RequestMethod.GET)
-  public ResponseEntity getQuery1() {
+  public ResponseEntity<List<Pair>> getQuery1() {
     List<Pair> list = transactionHistoryRepository.query1();
     return new ResponseEntity<>(list, null, HttpStatus.OK);
   }
 
   @RequestMapping(value = "/query2/{start}/{end}", produces = "application/json", method = RequestMethod.GET)
-  public ResponseEntity getQuery2(@PathVariable("start") String start,
+  public ResponseEntity<List<String>> getQuery2(@PathVariable("start") String start,
                                   @PathVariable("end")  String end) throws ParseException {
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
     List<String> list = transactionHistoryRepository.query2(

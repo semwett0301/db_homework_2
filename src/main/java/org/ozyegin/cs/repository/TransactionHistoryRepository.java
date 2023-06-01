@@ -33,6 +33,6 @@ public class TransactionHistoryRepository extends JdbcDaoSupport {
   }
 
   public void deleteAll() {
-    Objects.requireNonNull(getJdbcTemplate()).update("DELETE FROM your_table_name");
+    Objects.requireNonNull(getJdbcTemplate()).update("DELETE FROM TRANSACTION_HISTORY");
   }
 }

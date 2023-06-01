@@ -11,7 +11,6 @@ public class CompanyService {
   @Autowired
   private CompanyRepository companyRepository;
 
-
   public void create(List<Company> companies) throws Exception {
     for (Company a : companies) {
       companyRepository.create(a);
