@@ -1,9 +1,14 @@
 package org.ozyegin.cs.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
 
-public class Pair {
+import java.io.Serializable;
+
+public class Pair implements Serializable {
+    @JsonProperty("key")
     private String key;
+    @JsonProperty("value")
     private Integer value;
 
     public Pair(String key, Integer value) {
@@ -14,6 +19,7 @@ public class Pair {
     public Pair() {
 
     }
+
     public String getKey() {
         return this.key;
     }
@@ -40,7 +46,7 @@ public class Pair {
         }
         Pair pair = (Pair) o;
         return Objects.equal(getKey(), pair.getKey()) &&
-            Objects.equal(getValue(), pair.getValue());
+                Objects.equal(getValue(), pair.getValue());
     }
 
     @Override

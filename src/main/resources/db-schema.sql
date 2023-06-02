@@ -64,13 +64,14 @@ CREATE TABLE IF NOT EXISTS PRODUCE
     FOREIGN KEY (product_id) REFERENCES Product (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS TRANSACTION
+CREATE TABLE IF NOT EXISTS TRANSACTIONS
 (
     id           SERIAL,
     company_name VARCHAR(256) NOT NULL,
     product_id   INT          NOT NULL CHECK ( product_id > 0 ),
     order_date   DATE         NOT NULL,
     amount       INT          NOT NULL CHECK ( amount > 0 ),
+    is_active    BOOLEAN      NOT NULL,
     PRIMARY KEY (id),
     FOREIGN KEY (company_name) REFERENCES Company (name) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (product_id) REFERENCES Product (id) ON DELETE CASCADE ON UPDATE CASCADE
@@ -104,7 +105,7 @@ create FUNCTION summary_ordered_amount_less_then_capacity_trigger() RETURNS TRIG
                                     WHERE company_name = NEW.company_name
                                       AND product_id = NEW.product_id);
         DECLARE current_sum int := (SELECT SUM(amount)
-                                    FROM TRANSACTION
+                                    FROM TRANSACTIONS
                                     WHERE company_name = NEW.company_name
                                       AND product_id = NEW.product_id);
     BEGIN
@@ -118,7 +119,7 @@ create FUNCTION summary_ordered_amount_less_then_capacity_trigger() RETURNS TRIG
 
 create TRIGGER summary_ordered_amount_less_then_capacity
     BEFORE INSERT OR UPDATE
-    ON TRANSACTION
+    ON TRANSACTIONS
     FOR EACH ROW
 EXECUTE PROCEDURE summary_ordered_amount_less_then_capacity_trigger();
 
@@ -127,7 +128,7 @@ create FUNCTION delete_all_transactions_by_company_name_and_product_id(cur_compa
 '
     BEGIN
         DELETE
-        FROM TRANSACTION
+        FROM TRANSACTIONS
         WHERE company_name = cur_company_name
           AND product_id = cur_product_id;
     END
@@ -137,7 +138,7 @@ create FUNCTION capacity_less_then_all_orders_amounts_trigger() RETURNS TRIGGER 
 '
     DECLARE
         current_sum int := (SELECT SUM(amount)
-                            FROM TRANSACTION
+                            FROM TRANSACTIONS
                             WHERE company_name = NEW.company_name
                               AND product_id = NEW.product_id);
     BEGIN
@@ -167,10 +168,3 @@ CREATE TRIGGER delete_produce
     BEFORE DELETE
     ON PRODUCE
 EXECUTE PROCEDURE delete_produce_trigger();
-
-
-CREATE TABLE IF NOT EXISTS TRANSACTION_HISTORY
-(
-    id SERIAL,
-    PRIMARY KEY (id)
-);
