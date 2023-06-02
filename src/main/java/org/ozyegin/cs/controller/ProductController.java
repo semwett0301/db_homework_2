@@ -28,18 +28,35 @@ public class ProductController {
   private PlatformTransactionManager transactionManager;
 
   @RequestMapping(produces = "application/json", method = RequestMethod.POST)
-  public ResponseEntity create(@RequestBody List<Product> products) {
-    // if successful, return new ResponseEntity<>(idlist, HttpStatus.OK)
+  public ResponseEntity<List<Integer>> create(@RequestBody List<Product> products) {
+    final TransactionStatus txStatus = getTransactionStatus();
 
-    // if there is an error, return new ResponseEntity<>(null, null, HttpStatus.NOT_ACCEPTABLE);
-    return new ResponseEntity<>(new ArrayList<>(), null, HttpStatus.NOT_ACCEPTABLE);
+    try {
+      List<Integer> ids = productService.create(products);
+      transactionManager.commit(txStatus);
+      return new ResponseEntity<>(ids, HttpStatus.OK);
+    } catch (Exception e) {
+      transactionManager.rollback(txStatus);
+      return new ResponseEntity<>(new ArrayList<>(), null, HttpStatus.NOT_ACCEPTABLE);
+    }
   }
 
   @RequestMapping(produces = "application/json", method = RequestMethod.PUT)
-  public ResponseEntity update(@RequestBody List<Product> products) {
-    // if successful, return new ResponseEntity<>( HttpStatus.OK)
+  public ResponseEntity<?> update(@RequestBody List<Product> products) {
+    final TransactionStatus txStatus = getTransactionStatus();
 
-    // if there is an error, return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
-    return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
+    try {
+      productService.update(products);
+      transactionManager.commit(txStatus);
+      return new ResponseEntity<>(HttpStatus.OK);
+    } catch (Exception e) {
+      transactionManager.rollback(txStatus);
+      return new ResponseEntity<>(null, null, HttpStatus.NOT_ACCEPTABLE);
+    }
+  }
+
+  private TransactionStatus getTransactionStatus() {
+    TransactionDefinition txDef = new DefaultTransactionDefinition();
+    return transactionManager.getTransaction(txDef);
   }
 }

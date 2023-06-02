@@ -28,20 +28,49 @@ public class CompanyController {
   private PlatformTransactionManager transactionManager;
 
   @RequestMapping(produces = "application/json", method = RequestMethod.POST)
-  public ResponseEntity create(@RequestBody List<Company> companies) {
-    // if successful, return new ResponseEntity<>( HttpStatus.OK)
+  public ResponseEntity<?> create(@RequestBody List<Company> companies) {
+    final TransactionStatus txStatus = getTransactionStatus();
 
-    // if there is an error, return new ResponseEntity<>(null, null, HttpStatus.NOT_ACCEPTABLE);
-    return new ResponseEntity<>(null, null, HttpStatus.NOT_ACCEPTABLE);
+    try {
+      companyService.create(companies);
+      transactionManager.commit(txStatus);
+      return new ResponseEntity<>( HttpStatus.OK);
+    } catch (Exception e) {
+      transactionManager.rollback(txStatus);
+      return new ResponseEntity<>(null, null, HttpStatus.NOT_ACCEPTABLE);
+    }
   }
 
   @RequestMapping(value = "/{name}", produces = "application/json", method = RequestMethod.DELETE)
-  public ResponseEntity delete(@PathVariable("name") String name) {
-    return new ResponseEntity<>(HttpStatus.OK);
+  public ResponseEntity<?> delete(@PathVariable("name") String name) {
+    final TransactionStatus txStatus = getTransactionStatus();
+
+    try {
+      companyService.delete(name);
+      transactionManager.commit(txStatus);
+      return new ResponseEntity<>( HttpStatus.OK);
+    } catch (Exception e) {
+      transactionManager.rollback(txStatus);
+      return new ResponseEntity<>(null, null, HttpStatus.NOT_ACCEPTABLE);
+    }
   }
 
   @RequestMapping(value = "/{name}", produces = "application/json", method = RequestMethod.GET)
-  public ResponseEntity get(@PathVariable("name") String name) {
-    return new ResponseEntity<>(null, null, HttpStatus.OK);
+  public ResponseEntity<Company> get(@PathVariable("name") String name) {
+    final TransactionStatus txStatus = getTransactionStatus();
+
+    try {
+      Company result = companyService.find(name);
+      transactionManager.commit(txStatus);
+      return new ResponseEntity<>(result, HttpStatus.OK);
+    } catch (Exception e) {
+      transactionManager.rollback(txStatus);
+      return new ResponseEntity<>(null, null, HttpStatus.NOT_ACCEPTABLE);
+    }
+  }
+
+  private TransactionStatus getTransactionStatus() {
+    TransactionDefinition txDef = new DefaultTransactionDefinition();
+    return transactionManager.getTransaction(txDef);
   }
 }

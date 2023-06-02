@@ -39,10 +39,10 @@ public class SampleRepository extends JdbcDaoSupport {
   private ProductRepository productRepository;
 
   private final RowMapper<Sample> sampleRowMapper = (resultSet, i) -> new Sample()
-      .id(resultSet.getInt("id"))
-      .name(resultSet.getString("name"))
-      .data(resultSet.getString("data"))
-      .value(resultSet.getInt("value"));
+          .id(resultSet.getInt("id"))
+          .name(resultSet.getString("name"))
+          .data(resultSet.getString("data"))
+          .value(resultSet.getInt("value"));
 
   /**
    * Inserts the given samples into sample table.
@@ -51,12 +51,12 @@ public class SampleRepository extends JdbcDaoSupport {
    */
   public void create(List<Sample> samples) {
     Objects.requireNonNull(getJdbcTemplate()).batchUpdate(createPS, samples,
-        batchSize,
-        (ps, sample) -> {
-          ps.setString(1, sample.getName());
-          ps.setString(2, sample.getData());
-          ps.setInt(3, sample.getValue());
-        });
+            batchSize,
+            (ps, sample) -> {
+              ps.setString(1, sample.getName());
+              ps.setString(2, sample.getData());
+              ps.setInt(3, sample.getValue());
+            });
   }
 
   /**
@@ -66,7 +66,7 @@ public class SampleRepository extends JdbcDaoSupport {
    */
   public void update(Sample sample) throws Exception {
     if (Objects.requireNonNull(getJdbcTemplate()).update(updatePS,
-        sample.getName(), sample.getData(), sample.getValue(), sample.getId()) != 1) {
+            sample.getName(), sample.getData(), sample.getValue(), sample.getId()) != 1) {
       throw new Exception("Sample Update is failed!");
     }
   }
@@ -78,7 +78,7 @@ public class SampleRepository extends JdbcDaoSupport {
    */
   public void delete(int id) throws Exception {
     if (Objects.requireNonNull(getJdbcTemplate()).update(deletePS,
-        id) != 1) {
+            id) != 1) {
       throw new Exception("Sample Update is failed!");
     }
   }
@@ -113,8 +113,8 @@ public class SampleRepository extends JdbcDaoSupport {
     Sample sample;
     try {
       sample = Objects.requireNonNull(getJdbcTemplate()).queryForObject(getSinglePS,
-          new Object[] {id},
-          sampleRowMapper);
+              new Object[] {id},
+              sampleRowMapper);
     } catch (EmptyResultDataAccessException e) {
       throw new Exception("Sample not found!");
     }
